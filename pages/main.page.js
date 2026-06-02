@@ -25,10 +25,6 @@ export class MainPage {
     await this.loginButton.click();
   }
 
-  async gotoprofile() {
-    await this.dropdownProfile.click();
-  }
-
   async gotologout() {
     await this.dropdownMenu.click();
     await this.dropdownLogout.waitFor({ state: 'visible' }); //ждем видимость
