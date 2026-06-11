@@ -4,10 +4,7 @@ module.exports = {
     node: true,
     es2021: true,
   },
-  extends: [
-    'eslint:recommended',
-    'plugin:playwright/playwright-test'
-  ],
+  extends: ['eslint:recommended', 'plugin:playwright/playwright-test'],
   parserOptions: {
     ecmaVersion: 'latest',
     sourceType: 'module',
