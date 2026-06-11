@@ -1,3 +1,4 @@
+const URL = 'https://realworld.qa.guru/';
 export class MainPage {
   constructor(page) {
     // это браузер
@@ -29,5 +30,8 @@ export class MainPage {
     await this.dropdownMenu.click();
     await this.dropdownLogout.waitFor({ state: 'visible' }); //ждем видимость
     await this.dropdownLogout.click();
+  }
+  async goto() {
+    await this.page.goto(URL);
   }
 }
