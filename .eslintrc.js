@@ -10,7 +10,17 @@ module.exports = {
     sourceType: 'module',
   },
   rules: {
-    // Можешь добавить свои правила, например:
-    'no-console': 'warn', // Предупреждать, если используешь console.log
+    // Предупреждать, если используешь console.log
+    'no-console': 'warn',
+
+    // Игнорировать неиспользуемые переменные, начинающиеся с _
+    'no-unused-vars': [
+      'error',
+      {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+        caughtErrorsIgnorePattern: '^_',
+      },
+    ],
   },
 };

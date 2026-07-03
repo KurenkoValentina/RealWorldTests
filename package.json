@@ -7,7 +7,10 @@
     "t": "playwright test",
     "code": "npx playwright codegen",
     "t1": "playwright test tests/ui.spec.js",
-    "t:headed": "playwright test --headed"
+    "t:headed": "playwright test --headed",
+    "t:chrome": "npx playwright test --project=chromium",
+    "allureO": "npx allure open",
+    "allureG": "npx allure generate"
   },
   "keywords": [],
   "author": "",
@@ -17,6 +20,7 @@
     "@faker-js/faker": "^10.4.0",
     "@playwright/test": "^1.60.0",
     "@types/node": "^25.9.1",
+    "allure-playwright": "^3.10.2",
     "eslint": "^8.57.0",
     "eslint-plugin-playwright": "^2.10.4",
     "prettier": "^3.8.3"
