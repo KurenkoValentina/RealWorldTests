@@ -4,8 +4,8 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                nodejs('NodeJS2290') {
-                    sh 'npm ci'  // ← исправлено
+                nodejs('NodeJS22.22.0') {
+                    sh 'npm ci'  
                     sh 'npx playwright install --with-deps'
                     sh 'npx playwright test --reporter=allure-playwright'  
                 }
