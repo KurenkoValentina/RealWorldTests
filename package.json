@@ -4,10 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "t": "playwright test",
+    "test": "npx playwright test",
     "code": "npx playwright codegen",
-    "t1": "playwright test tests/ui.spec.js",
-    "t:headed": "playwright test --headed",
+    "t1": "npx playwright test tests/ui.spec.js",
+    "t:headed": "npx playwright test --headed",
     "t:chrome": "npx playwright test --project=chromium",
     "allureO": "npx allure open",
     "allureG": "npx allure generate"
@@ -21,8 +21,10 @@
     "@playwright/test": "^1.60.0",
     "@types/node": "^25.9.1",
     "allure-playwright": "^3.10.2",
+    "dotenv": "^17.4.2",
     "eslint": "^8.57.0",
     "eslint-plugin-playwright": "^2.10.4",
+    "https-proxy-agent": "^9.1.0",
     "prettier": "^3.8.3"
   }
 }

@@ -1,0 +1,19 @@
+{
+  "base": {
+    "project": "Autotests",
+    "environment": "Local",
+    "comment": "Test results",
+    "reportLink": "",
+    "language": "ru",
+    "allureFolder": "allure-report",
+    "enableChart": false,
+    "enableSuitesPublishing": false,
+    "durationFormat": "mm:ss",
+    "customData": {},
+    "logo": ""
+  },
+  "telegram": {
+    "token": "XXX",
+    "chat": "XXX"
+  }
+}
