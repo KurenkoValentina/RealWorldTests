@@ -2,8 +2,6 @@ import { UserBuilder, ArticleBuilder, CommentBuilder } from '../src/helpers/buil
 //import { App } from '../src/pages/app';
 import { expect } from '@playwright/test';
 import { test } from '../src/helpers/fixtures/fixture';
-import dotenv from 'dotenv';
-import path from 'path';
 
 //регистрация перед каждым тестом
 let testUser;
