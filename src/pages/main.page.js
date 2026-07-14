@@ -1,4 +1,4 @@
-const URL = 'https://realworld.qa.guru/';
+//const URL = process.env.UI_URL;
 export class MainPage {
   constructor(page) {
     // это браузер
@@ -32,6 +32,6 @@ export class MainPage {
     await this.dropdownLogout.click();
   }
   async goto() {
-    await this.page.goto(URL);
+    await this.page.goto('/');
   }
 }
