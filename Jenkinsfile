@@ -1,28 +1,29 @@
 pipeline {
-    agent any
+    // Используем официальный образ Playwright. Он уже содержит Node.js и все браузеры!
+    agent {
+        docker {
+            image 'mcr.microsoft.com/playwright:v1.45.0-jammy'
+            args '-u root' // Важно: запускаем от root, чтобы не было проблем с правами в Jenkins
+        }
+    }
 
     stages {
-        stage('Install Dependencies & Run Tests') {
+        stage('Run Tests') {
             steps {
                 checkout scm
                 
                 sh '''
-                    echo "=== 1. Установка системных зависимостей (включая библиотеки для браузера) ==="
-                    apk update
-                    # Добавили пакеты, необходимые для работы Chromium в Alpine:
-                    apk add curl wget openjdk17 nodejs npm git chromium nss freetype harfbuzz ca-certificates ttf-freefont
+                    echo "=== 1. Установка Java и Wget для уведомлений (в образе их нет) ==="
+                    apt-get update
+                    apt-get install -y default-jre wget
                     
-                    echo "=== Проверка версий ==="
+                    echo "=== 2. Проверка версий ==="
                     node -v
                     npm -v
                     java -version
                     
-                    echo "=== 2. Установка зависимостей проекта ==="
+                    echo "=== 3. Установка зависимостей проекта ==="
                     npm ci
-                    
-                    echo "=== 3. Установка браузеров Playwright (без --with-deps) ==="
-                    # Мы убрали --with-deps, так как системные библиотеки уже установлены через apk
-                    npx playwright install
                     
                     echo "=== 4. Запуск тестов ==="
                     npm t
@@ -44,10 +45,8 @@ pipeline {
                     echo "=== Подготовка уведомления в Telegram ==="
                     mkdir -p notifications
                     
-                    # Скачиваем утилиту уведомлений
                     wget -q https://github.com/qa-guru/allure-notifications/releases/download/v5.0.2/allure-notifications-5.0.2.jar -O notifications/allure-notifications-5.0.2.jar
                     
-                    # Создаем config.json с секретами
                     cat <<EOF > notifications/config.json
                     {
                       "base": {
