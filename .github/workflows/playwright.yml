@@ -1,7 +1,7 @@
 # Это комментарий.
 # Это название пайплайна
-# ${{secrets.HARDCODE_USER_PASSWORD}} 
-# ${{vars.UI_URL}} 
+# ${{secrets.HARDCODE_USER_PASSWORD}}
+# ${{vars.UI_URL}}
 name: pw7 автотесты UI/API
 
 on:
@@ -26,15 +26,12 @@ jobs:
         run: npx playwright install --with-deps
       - name: Запусти тесты
         run: npm t
-        env:
-          MY_PASS: ${{secrets.HARDCODE_USER_PASSWORD}} 
-          UI_URL: ${{vars.UI_URL}} 
       - name: Генерируем отчет
-        run: npx allure awesome ./allure-results --single-file
+        run: npx allure awesome ./allure-results
         continue-on-error: true
         if: always()
       - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@v4
         continue-on-error: true
         if: always()
         with:
@@ -43,3 +40,47 @@ jobs:
             allure-report/index.html
             allure-results
             playwright-report
+
+      - name: Setup Java (требуется для запуска .jar)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+        if: always()
+
+      - name: Скачать Allure Notifications
+        run: |
+          mkdir -p notifications
+          wget https://github.com/qa-guru/allure-notifications/releases/download/v5.0.2/allure-notifications-5.0.2.jar -O notifications/allure-notifications.jar
+        if: always()
+
+      - name: Создать config.json для уведомлений
+        run: |
+          cat <<EOF > notifications/config.json
+          {
+            "base": {
+              "project": "RealWorldTests",
+              "environment": "GitHub Actions",
+              "language": "ru",
+              "allureFolder": "allure-report/",
+              "allureResultsFolder": "allure-results/",
+              "enableChart": true,
+              "chart": {
+                "mode": "pie"
+              },
+              "links": {
+                "report": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+                "build": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+              }
+            },
+            "telegram": {
+              "token": "${{ secrets.TELEGRAM_BOT_TOKEN }}",
+              "chat": "${{ secrets.TELEGRAM_CHAT_ID }}"
+            }
+          }
+          EOF
+        if: always()
+
+      - name: Отправить уведомление в Telegram
+        run: java "-DconfigFile=notifications/config.json" -jar notifications/allure-notificati
+        if: always()
