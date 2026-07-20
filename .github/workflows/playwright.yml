@@ -63,6 +63,7 @@ jobs:
             "base": {
               "project": "RealWorldTests",
               "environment": "GitHub Actions",
+              "comment": "CI Run",
               "language": "ru",
               "allureFolder": "allure-report/",
               "allureResultsFolder": "allure-results/",
@@ -84,5 +85,5 @@ jobs:
         if: always()
 
       - name: Отправить уведомление в Telegram
-        run: java "-DconfigFile=notifications/config.json" -jar notifications/allure-notificati
+        run: java "-DconfigFile=notifications/config.json" -jar notifications/allure-notifications-5.0.2.jar
         if: always()
