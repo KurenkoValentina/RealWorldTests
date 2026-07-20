@@ -7,10 +7,10 @@ pipeline {
                 checkout scm
                 
                 sh '''
-                    echo "=== 1. Установка системных зависимостей ==="
-                    # Обновляем списки пакетов и устанавливаем всё необходимое одной командой
+                    echo "=== 1. Установка системных зависимостей (включая библиотеки для браузера) ==="
                     apk update
-                    apk add curl wget openjdk17 nodejs npm git
+                    # Добавили пакеты, необходимые для работы Chromium в Alpine:
+                    apk add curl wget openjdk17 nodejs npm git chromium nss freetype harfbuzz ca-certificates ttf-freefont
                     
                     echo "=== Проверка версий ==="
                     node -v
@@ -20,8 +20,9 @@ pipeline {
                     echo "=== 2. Установка зависимостей проекта ==="
                     npm ci
                     
-                    echo "=== 3. Установка браузеров Playwright ==="
-                    npx playwright install --with-deps
+                    echo "=== 3. Установка браузеров Playwright (без --with-deps) ==="
+                    # Мы убрали --with-deps, так как системные библиотеки уже установлены через apk
+                    npx playwright install
                     
                     echo "=== 4. Запуск тестов ==="
                     npm t
