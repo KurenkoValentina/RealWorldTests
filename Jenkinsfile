@@ -7,19 +7,34 @@ pipeline {
                 checkout scm
                 
                 sh '''
-                    # 1. Устанавливаем недостающие системные утилиты (curl, wget, java)
-                    echo "Installing system dependencies..."
-                    sudo apt-get update || apt-get update
-                    sudo apt-get install -y curl wget default-jre || apt-get install -y curl wget default-jre
+                    echo "=== Определяем ОС и доступные инструменты ==="
+                    cat /etc/os-release || echo "Не удалось прочитать os-release"
+                    
+                    # 1. Устанавливаем зависимости в зависимости от типа ОС
+                    if command -v apk >/dev/null 2>&1; then
+                        echo "Обнаружен Alpine Linux. Устанавливаем через apk..."
+                        apk update
+                        apk add curl wget openjdk17
+                    elif command -v apt-get >/dev/null 2>&1; then
+                        echo "Обнаружен Debian/Ubuntu. Устанавливаем через apt-get..."
+                        (apt-get update || sudo apt-get update) && (apt-get install -y curl wget default-jre || sudo apt-get install -y curl wget default-jre)
+                    elif command -v yum >/dev/null 2>&1; then
+                        echo "Обнаружен CentOS/RHEL. Устанавливаем через yum..."
+                        yum install -y curl wget java-17-openjdk
+                    else
+                        echo "Менеджер пакетов не найден. Надеемся, что curl, wget и java уже установлены."
+                    fi
                     
                     # 2. Устанавливаем Node.js 22 через nvm
+                    echo "=== Устанавливаем Node.js ==="
                     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
                     export NVM_DIR="$HOME/.nvm"
                     [ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"
                     nvm install 22
                     nvm use 22
                     
-                    # 3. Устанавливаем зависимости и запускаем тесты
+                    # 3. Запускаем тесты
+                    echo "=== Запускаем тесты ==="
                     npm ci
                     npx playwright install --with-deps
                     npm t
@@ -36,9 +51,14 @@ pipeline {
                 string(credentialsId: 'telegram-monitoring-chat-id', variable: 'TG_CHAT_ID')
             ]) {
                 sh '''
-                    # Убеждаемся, что wget и java доступны и в post-стадии
-                    sudo apt-get update || apt-get update
-                    sudo apt-get install -y wget default-jre || apt-get install -y wget default-jre
+                    # Повторяем установку зависимостей для post-стадии (на случай, если окружение сбросилось)
+                    if command -v apk >/dev/null 2>&1; then
+                        apk add wget openjdk17 --no-cache
+                    elif command -v apt-get >/dev/null 2>&1; then
+                        (apt-get update || sudo apt-get update) && (apt-get install -y wget default-jre || sudo apt-get install -y wget default-jre)
+                    elif command -v yum >/dev/null 2>&1; then
+                        yum install -y wget java-17-openjdk
+                    fi
                     
                     export NVM_DIR="$HOME/.nvm"
                     [ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"
@@ -46,10 +66,10 @@ pipeline {
                     
                     mkdir -p notifications
                     
-                    # Скачиваем утилиту уведомлений
+                    echo "=== Скачиваем Allure Notifications ==="
                     wget https://github.com/qa-guru/allure-notifications/releases/download/v5.0.2/allure-notifications-5.0.2.jar -O notifications/allure-notifications-5.0.2.jar
                     
-                    # Создаем config.json с секретами
+                    echo "=== Создаем config.json ==="
                     cat <<EOF > notifications/config.json
                     {
                       "base": {
@@ -68,7 +88,7 @@ pipeline {
                     }
                     EOF
                     
-                    # Отправляем уведомление
+                    echo "=== Отправляем уведомление в Telegram ==="
                     java "-DconfigFile=notifications/config.json" -jar notifications/allure-notifications-5.0.2.jar
                 '''
             }
