@@ -1,34 +1,31 @@
 pipeline {
-    // Используем официальный образ Playwright. Он уже содержит Node.js и все браузеры!
-    agent {
-        docker {
-            image 'mcr.microsoft.com/playwright:v1.45.0-jammy'
-            args '-u root' // Важно: запускаем от root, чтобы не было проблем с правами в Jenkins
-        }
-    }
+    agent any
 
     stages {
-        stage('Run Tests') {
+        stage('Install Dependencies & Run Tests') {
             steps {
                 checkout scm
                 
                 sh '''
-                    echo "=== 1. Установка Java и Wget для уведомлений (в образе их нет) ==="
-                    apt-get update
-                    apt-get install -y default-jre wget
+                    echo "=== 1. Установка системных зависимостей (включая Chromium) ==="
+                    apk update
+                    # Устанавливаем Node.js, Java и все библиотеки, необходимые для работы Chromium в Alpine
+                    apk add curl wget openjdk17 nodejs npm git chromium nss freetype harfbuzz ca-certificates ttf-freefont
                     
-                    echo "=== 2. Проверка версий ==="
+                    echo "=== Проверка версий ==="
                     node -v
                     npm -v
                     java -version
+                    chromium --version
                     
-                    echo "=== 3. Установка зависимостей проекта ==="
+                    echo "=== 2. Установка зависимостей проекта ==="
                     npm ci
                     
-                    echo "=== 4. Запуск тестов ==="
+                    echo "=== 3. Запуск тестов (используем системный Chromium) ==="
+                    # Мы НЕ запускаем npx playwright install, так как используем системный браузер
                     npm t
                     
-                    echo "=== 5. Генерация отчета Allure ==="
+                    echo "=== 4. Генерация отчета Allure ==="
                     npx allure awesome ./allure-results
                 '''
             }
