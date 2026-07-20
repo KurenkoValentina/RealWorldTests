@@ -26,6 +26,8 @@ jobs:
         run: npx playwright install --with-deps
       - name: Запусти тесты
         run: npm t
+        env:
+          UI_URL: ${{ vars.UI_URL }}
       - name: Генерируем отчет
         run: npx allure awesome ./allure-results
         continue-on-error: true
