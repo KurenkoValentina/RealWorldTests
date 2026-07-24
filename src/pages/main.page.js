@@ -22,15 +22,29 @@ export class MainPage {
     await this.settingsButton.click();
   }
 
-  async gotologin() {
-    await this.loginButton.click();
+   async gotologin() {
+    // await this.loginButton.click();
+    // кнопка в меню нестабильна  - приходится так
+    await this.page.goto('/#/login');
+    await this.page.waitForLoadState('domcontentloaded');
   }
 
   async gotologout() {
     await this.dropdownMenu.click();
-    await this.dropdownLogout.waitFor({ state: 'visible' }); //ждем видимость
+    await this.dropdownLogout.waitFor({ state: 'visible' }); // ждем видимость
     await this.dropdownLogout.click();
+    // для обхода detached from DOM - принудительно чистим - ui работает нестабильно ( не очищает сессию)
+    // await this.page.waitForURL('**/#/');
+    await this.page.context().clearCookies();
+    await this.page.evaluate(() => {
+      localStorage.clear();
+      sessionStorage.clear();
+    });
+    // Принудительно обновляем страницу, чтобы фронтенд перерисовал шапку - нестабильно работает сайт
+    await this.page.goto('/');
+    await this.page.waitForLoadState('networkidle');
   }
+  
   async goto() {
     await this.page.goto('/');
   }
