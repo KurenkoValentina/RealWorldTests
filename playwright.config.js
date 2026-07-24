@@ -33,11 +33,6 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     /* Base URL to use in actions like `await page.goto('')`. */
     baseURL: process.env.UI_URL,
-    ignoreHTTPSErrors: true,
-    launchOptions: {
-      executablePath: '/usr/bin/chromium', // Путь к браузеру, установленному через apk в Alpine
-    },
-
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
   },
