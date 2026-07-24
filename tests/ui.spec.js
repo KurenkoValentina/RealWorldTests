@@ -58,6 +58,7 @@ test('Пользователь может поменять email и залоги
   // меняем в настройках email
   await webApp.main.gotoSettings();
   await webApp.settings.updateEmail(newEmail.email);
+  await webApp.settings.updatePassword(testUser.password);
   await webApp.settings.saveChanges();
   await expect(webApp.settings.settingsButton).toBeHidden();
   //логаут и логин с новым email
